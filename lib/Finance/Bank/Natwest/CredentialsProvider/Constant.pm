@@ -2,6 +2,9 @@ package Finance::Bank::Natwest::CredentialsProvider::Constant;
 
 use Carp;
 
+use vars qw( $VERSION );
+$VERSION = '0.02';
+
 =head1 NAME
 
 Finance::Bank::Natwest::CredentialsProvider::Constant - Static credentials provider

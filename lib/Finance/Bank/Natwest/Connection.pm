@@ -4,7 +4,7 @@ use vars qw( $VERSION );
 use Carp;
 use LWP::UserAgent;
 
-$VERSION = '0.05';
+$VERSION = '0.01';
 
 use constant URL_ROOT => 'https://www.nwolb.com';
 use constant DIR_BASE => '/secure/';

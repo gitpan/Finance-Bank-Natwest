@@ -6,7 +6,7 @@ use Carp;
 use HTML::TokeParser;
 use Finance::Bank::Natwest::Connection;
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 =head1 NAME
 

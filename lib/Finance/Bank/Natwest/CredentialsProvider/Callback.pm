@@ -3,6 +3,9 @@ package Finance::Bank::Natwest::CredentialsProvider::Callback;
 use Carp;
 use Finance::Bank::Natwest::CredentialsProvider::Constant;
 
+use vars qw( $VERSION );
+$VERSION = '0.02';
+
 =head1 NAME
 
 Finance::Bank::Natwest::CredentialsProvider::Callback - Credentials provider that uses a callback to gather the required information
