@@ -1,3 +1,7 @@
+0.04    13 November 2003
+        Added a couple of missing dependencies to Makefile.PL
+	Updated README contact email address; was missed in the last change
+
 0.03    11 November 2003
         Update to deal with small change to website
 	Update to contact email address

@@ -13,4 +13,3 @@ t/fbn_creation.t
 t/lib/Mock/NatwestWebServer.pm
 t/lib/Mock/NatwestWebServer/Tests.pm
 t/natwestwebserver.t
-t/natwestwebserver2.t

@@ -11,5 +11,7 @@ WriteMakefile(
 		     'Digest::MD5' => 0,
 		     'Test::More' => 0,
 		     'URI' => 0,
+		     'Test::MockObject' => 0,
+		     'Exporter' => 0,
 		    },
 );
