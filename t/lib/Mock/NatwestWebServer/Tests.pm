@@ -21,15 +21,15 @@ use constant CONTENT_REGEX => {
  ERROR       =>     qr|<div class=ErrorMsg>Error</div>|,
  ERROR_NOREDIR =>   qr|<div class=ErrorMsg>Error</div>|,
  UNKNOWN_PAGE =>    qr|An unknown page|,
- PINPASS_REQUEST => qr|
+ PINPASS_REQUEST => qr#
                                    Please \s enter \s the \s ([a-z]{5,6}), \s
                                    ([a-z]{5,6}) \s and \s ([a-z]{5,6}) \s
-                                   digits \s from \s your \s PIN: 
+                                   digits \s from \s your \s (?:Security \s Number|PIN): 
                                    .*
                                    Please \s enter \s the \s ([a-z]{5,11}), \s
                                    ([a-z]{5,11}) \s and \s ([a-z]{5,11}) \s
                                    characters \s from \s your \s Password:
-                                  |x,
+                                  #x,
  LOGIN_MSG =>       qr|
                        <form \s action="LogonMessage \. asp" \s method="post">
 		       Some \s important \s logon \s message </form>

@@ -16,9 +16,12 @@ ok( $nws = Mock::NatwestWebServer->new(), 'created M:NWS object successfully' );
 isa_ok( $nws, 'Mock::NatwestWebServer' );
 for my $method (qw/ add_account expire_session session_id 
                     logonmessage_enable logonmessage_disable
-                    set_scheme set_host set_port set_path_prefix /) {
+		    set_scheme set_host set_port set_path_prefix /) {
    can_ok( $nws, $method );
 }
+
+$nws->set_host('www.rbsdigital.com');
+$nws->set_pin_desc('Security Number');
 
 $nws->add_account( dob => '010179', uid => '0001',
                    pin => '1234', pass => 'abcdefgh' );
@@ -46,9 +49,9 @@ if (can_ok( $resp, 'base' )) {
 }
 
 my @invalid_requests = (['', 'emty url'], 
-                        ['http://www.nwolb.com/', 'not https'],
-                        ['https://www.notnwolb.com/', 'not www.nwolb.com'],
-                        ['https://www.nwolb.com:8443/', 'not port 443'],
+                        ['http://www.rbsdigital.com/', 'not https'],
+                        ['https://www.notrbsdigital.com/', 'not www.rbsdigital.com'],
+                        ['https://www.rbsdigital.com:8443/', 'not port 443'],
                        );
 
 for my $request (@invalid_requests) {
@@ -58,28 +61,28 @@ for my $request (@invalid_requests) {
 
 my $url;
 
-for $url ('https://www.nwolb.com/',
-          'https://www.nwolb.com/not/secure/') {
+for $url ('https://www.rbsdigital.com/',
+          'https://www.rbsdigital.com/not/secure/') {
    $nws->clear;
    $resp = request_ok( $ua, UNKNOWN_PAGE, $url );
 }
 
-$url = 'https://www.nwolb.com/secure/';
+$url = 'https://www.rbsdigital.com/secure/';
 $nws->expire_session;
 $resp = request_ok( $ua, UNKNOWN_PAGE, $url );
 is( $nws->session_id, undef, 'should not have been session redirected' );
 
-$url = 'https://www.nwolb.com/secure';
+$url = 'https://www.rbsdigital.com/secure';
 $nws->expire_session;
 $resp = request_ok( $ua, UNKNOWN_PAGE, $url );
 is( $nws->session_id, undef, 'should not have been session redirected' );
 
-$url = 'https://www.nwolb.com/secure/login.asp';
+$url = 'https://www.rbsdigital.com/secure/login.asp';
 $nws->expire_session;
 $resp = request_ok( $ua, UNKNOWN_PAGE, $url );
 is( $nws->session_id, undef, 'should not have been session redirected' );
 
-$url = 'https://www.nwolb.com/secure/logon.asp';
+$url = 'https://www.rbsdigital.com/secure/logon.asp';
 $nws->expire_session;
 $resp = request_ok( $ua, ERROR, $url );
 isnt( $nws->session_id, undef, 'should have been session redirected' );
@@ -99,56 +102,56 @@ $nws->expire_session;
 $params2 = { pin1 => '2', pin2 => '4', pin3 => '0',
              pass1 => 'g', pass2 => 'c', pass3 => 'e',
              buttonComplete => 'Submitted', buttonFinish => 'Finish' };
-$url = 'https://www.nwolb.com/secure/' . 
+$url = 'https://www.rbsdigital.com/secure/' . 
        ($resp->base->path_segments)[2] .
        '/logon-pinpass.asp';
 $nws->clear;
 $resp = request_ok( $ua, SESSION_EXPIRED, $url, $params2 );
 $nws->expire_session;
 
-$url = 'https://www.nwolb.com/secure/logon.asp';
+$url = 'https://www.rbsdigital.com/secure/logon.asp';
 $nws->set_pinpass( [1, 3, 0], [6, 2, 4] );
 $resp = request_ok( $ua, PINPASS_REQUEST, $url, $params1 );
 
-$url = 'https://www.nwolb.com/secure/' . 
+$url = 'https://www.rbsdigital.com/secure/' . 
        ($resp->base->path_segments)[2] .
        '/logon-pinpass.asp';
 $resp = request_ok( $ua, ERROR_NOREDIR, $url, $params2 );
 $nws->expire_session;
 
-$url = 'https://www.nwolb.com/secure/logon.asp';
+$url = 'https://www.rbsdigital.com/secure/logon.asp';
 $nws->set_pinpass( [1, 3, 0], [6, 2, 4] );
 $resp = request_ok( $ua, PINPASS_REQUEST, $url, $params1 );
 
 $params2->{pin3} = '1';
 $params2->{pass3} = 'f';
-$url = 'https://www.nwolb.com/secure/' . 
+$url = 'https://www.rbsdigital.com/secure/' . 
        ($resp->base->path_segments)[2] .
        '/logon-pinpass.asp';
 $resp = request_ok( $ua, ERROR_NOREDIR, $url, $params2 );
 $nws->expire_session;
 
-$url = 'https://www.nwolb.com/secure/logon.asp';
+$url = 'https://www.rbsdigital.com/secure/logon.asp';
 $nws->set_pinpass( [1, 3, 0], [6, 2, 4] );
 $resp = request_ok( $ua, PINPASS_REQUEST, $url, $params1 );
 
 $params2->{pass3} = 'e';
-$url = 'https://www.nwolb.com/secure/' . 
+$url = 'https://www.rbsdigital.com/secure/' . 
        ($resp->base->path_segments)[2] .
        '/logon-pinpass.asp';
 $resp = request_ok( $ua, LOGIN_OK, $url, $params2 );
 
-$url = 'https://www.nwolb.com/secure/' .
+$url = 'https://www.rbsdigital.com/secure/' .
        ($resp->base->path_segments)[2] .
        '/Balances.asp?0';
 $resp = request_ok( $ua, BALANCES, $url );
 
-$url = 'https://www.nwolb.com/secure/' .
+$url = 'https://www.rbsdigital.com/secure/' .
        ($resp->base->path_segments)[2] .
        '/Balances.asp?1';
 $resp = request_ok( $ua, BALANCES, $url );
 
-$url = 'https://www.nwolb.com/secure/' .
+$url = 'https://www.rbsdigital.com/secure/' .
        ($resp->base->path_segments)[2] .
        '/Balances.asp?2';
 $resp = request_ok( $ua, ERROR, $url );

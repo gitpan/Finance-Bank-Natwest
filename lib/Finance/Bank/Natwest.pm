@@ -6,7 +6,7 @@ use Carp;
 use HTML::TokeParser;
 use Finance::Bank::Natwest::Connection;
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 =head1 NAME
 
@@ -71,6 +71,11 @@ If any errors occur then C<new> will C<croak>.
 
 =cut
 
+use constant URL_ROOT => 'https://www.nwolb.com';
+use constant DIR_BASE => '/secure/';
+
+sub url_base { $_[0]->URL_ROOT . $_[0]->DIR_BASE };
+
 sub new {
     my ($class, %opts) = @_;
 
@@ -78,7 +83,9 @@ sub new {
 
     {
        local $Carp::CarpLevel = $Carp::CarpLevel + 1;
-       $self->{connection} = Finance::Bank::Natwest::Connection->new(%opts);
+       $self->{connection} = Finance::Bank::Natwest::Connection->new(
+          %opts, url_base => $self->url_base
+       );
     }
 
     $self->_load_accounts();

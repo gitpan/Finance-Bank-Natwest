@@ -4,11 +4,9 @@ use vars qw( $VERSION );
 use Carp;
 use LWP::UserAgent;
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
-use constant URL_ROOT => 'https://www.nwolb.com';
-use constant DIR_BASE => '/secure/';
-use constant URL_BASE => URL_ROOT . DIR_BASE;
+require Finance::Bank::Natwest;
 
 use constant POSS_PIN => { first => 0, second => 1, third => 2, fourth => 3 };
 use constant POSS_PASS =>
@@ -24,6 +22,8 @@ sub new{
     my ($class, %opts) = @_;
 
     my $self = bless {}, $class;
+
+    $self->{url_base} = $opts{url_base} || Finance::Bank::Natwest->url_base;
 
     $self->_set_credentials( %opts );
     $self->_new_ua( %opts );
@@ -151,11 +151,11 @@ sub login{
 
     croak "Error during login process. " .
           "Current page cannot be recognised, stopped" unless
-        $page =~ m|
+        $page =~ m#
                     Please \s enter \s the \s
                     ([a-z]{5,6}), \s ([a-z]{5,6}) \s and \s ([a-z]{5,6}) \s
-                    digits \s from \s your \s PIN:
-                  |ix;
+                    digits \s from \s your \s (?:Security \s Number|PIN):
+                  #ix;
 
     croak "Error during login process. " .
           "Unrecognised pin request ($1, $2, $3), stopped" unless
@@ -242,9 +242,9 @@ sub _post{
     my $full_url;
 
     if (exists $self->{rb_id}) {
-        $full_url = URL_BASE . $self->{rb_id} . '/' . $url;
+        $full_url = $self->{url_base} . $self->{rb_id} . '/' . $url;
     } else {
-        $full_url = URL_BASE . $url;
+        $full_url = $self->{url_base} . $url;
     }
 
     my $resp = $self->{ua}->post($full_url, @_);

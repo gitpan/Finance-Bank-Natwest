@@ -1,3 +1,5 @@
+#!/usr/bin/perl -w
+
 use strict;
 use Test::More tests => 71;
 use Test::Exception;

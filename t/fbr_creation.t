@@ -11,14 +11,15 @@ use Mock::NatwestWebServer;
 use Finance::Bank::Natwest::CredentialsProvider::Constant;
 
 my $nws = Mock::NatwestWebServer->new();
+$nws->set_host('www.rbsdigital.com');
 $nws->add_account( dob => '010179', uid => '0001',
                    pin => '4321', pass => 'Password' );
 
-use_ok( 'Finance::Bank::Natwest' );
+use_ok( 'Finance::Bank::RBoS' );
 
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new();
+   my $fbn = Finance::Bank::RBoS->new();
 } 'invalid credential parameters: expected to fail';
 
 my $cred_obj = Finance::Bank::Natwest::CredentialsProvider::Constant->new(
@@ -26,21 +27,21 @@ my $cred_obj = Finance::Bank::Natwest::CredentialsProvider::Constant->new(
 );
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new( 
+   my $fbn = Finance::Bank::RBoS->new( 
       credentials => $cred_obj,
       credentials_options => undef
    );
 } 'invalid credential parameters: expected to fail';
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new( 
+   my $fbn = Finance::Bank::RBoS->new( 
       credentials => $cred_obj,
       credentials_options => {}
    );
 } 'invalid credential parameters: expected to fail';
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new( 
+   my $fbn = Finance::Bank::RBoS->new( 
       credentials => $cred_obj,
       credentials_options => { customer_no => '0101790001',
                                password => 'Password',
@@ -49,45 +50,45 @@ dies_ok {
 } 'invalid credential parameters: expected to fail';
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new( credentials => 'Constant' );
+   my $fbn = Finance::Bank::RBoS->new( credentials => 'Constant' );
 } 'invalid credential parameters: expected to fail';
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new( credentials => 'Callback' );
+   my $fbn = Finance::Bank::RBoS->new( credentials => 'Callback' );
 } 'invalid credential parameters: expected to fail';
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new( credentials => 'GPG' );
+   my $fbn = Finance::Bank::RBoS->new( credentials => 'GPG' );
 } 'invalid credential parameters: expected to fail';
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new(
+   my $fbn = Finance::Bank::RBoS->new(
       credentials => 'Constant',
       credentials_options => {}
    );
 } 'invalid credential parameters: expected to fail';
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new(
+   my $fbn = Finance::Bank::RBoS->new(
       credentials => 'Callback',
       credentials_options => {}
    );
 } 'invalid credential parameters: expected to fail';
 
 dies_ok {
-   my $fbn = Finance::Bank::Natwest->new( credentials_options => {} );
+   my $fbn = Finance::Bank::RBoS->new( credentials_options => {} );
 } 'invalid credentials parameters: expected to fail';
 
 
 {
-   my $fbn = Finance::Bank::Natwest->new( credentials => 'Constant',
+   my $fbn = Finance::Bank::RBoS->new( credentials => 'Constant',
                                           credentials_options => { 
                                              customer_no => '0101790001',
                                              password => 'Password',
 				             pin => '4321'
 				       } );
 
-   isa_ok( $fbn, 'Finance::Bank::Natwest' );
+   isa_ok( $fbn, 'Finance::Bank::RBoS' );
 
    foreach my $method (qw( accounts )) {
       can_ok( $fbn, $method );

@@ -32,6 +32,12 @@ sub new{
    $self->fake_module( 'LWP::UserAgent' );
    $self->fake_new( 'LWP::UserAgent' );
 
+   $self->{scheme} = 'https';
+   $self->{host} = 'www.nwolb.com';
+   $self->{port} = 443;
+   $self->{path_prefix} = [ 'secure' ];
+   $self->{pin_desc} = 'PIN';
+
    $self->{accounts} = {};
    $self->{status} = STATUS->{ok};
    $self->{progress} = 0;
@@ -54,11 +60,10 @@ sub new{
       sub {
          local $, = '/';
          my $base = join('/', 
-            'https://www.nwolb.com' , 
+            $self->{scheme} . '://' . $self->{host}, 
              @{$_[0]->{response}{path_segments}}
-                [1..@{$_[0]->{response}{path_segments}}]
+                [1..$#{$_[0]->{response}{path_segments}}]
          );
-         $base =~ s/\/$//;
 	 $base .= '?' . $_[0]->{response}{query}
 	    if exists $_[0]->{response}{query} and 
 	       defined $_[0]->{response}{query};
@@ -84,36 +89,41 @@ sub _post {
 
    return $self->_invalid_request(
       "Protocol scheme '" . $uri->scheme . "' not supported"
-   ) if $uri->scheme ne 'https';
+   ) if $uri->scheme ne $self->{scheme};
 
    return $self->_invalid_request(
       "Can't connect to " . $uri->host_port .
       " (Bad hostname '" . $uri->host . "')"
-   ) if $uri->host_port ne 'www.nwolb.com:443';
+   ) if $uri->host_port ne $self->{host} . ':' . $self->{port};
 
-   return $self->_unknown_page($uri) 
-      if ($uri->path_segments)[1] ne 'secure';
+   for (0..$#{$self->{path_prefix}}) {
+      return $self->_unknown_page($uri)
+         if !defined [$uri->path_segments]->[$_+1] or
+	    [$uri->path_segments]->[$_+1] ne $self->{path_prefix}[$_];
+   }
 
-   if (defined PAGES->{($uri->path_segments)[2]}) {
+   my $offset = @{$self->{path_prefix}};
+   
+   if (defined PAGES->{($uri->path_segments)[$offset+1] || ''}) {
       $self->{session} = $self->{md5}->add(rand)->hexdigest;
       my @ps = $uri->path_segments;
-      splice @ps, 2, 0, $self->{session};
+      splice @ps, $offset+1, 0, $self->{session};
       $uri->path_segments( @ps );
    }
 
    return $self->_unknown_page($uri)
-      if @{[$uri->path_segments]} != 4;
+      if @{[$uri->path_segments]} != $offset+3;
 
    return $self->_session_expired($uri)
-      if ($uri->path_segments)[2] ne $self->{session};
+      if ($uri->path_segments)[$offset+1] ne ($self->{session} || '');
 
    return $self->_unknown_page($uri)
-      if !defined PAGES->{($uri->path_segments)[3]};
+      if !defined PAGES->{($uri->path_segments)[$offset+2]};
 
    return $self
       if $self->_common_checks($uri, @_);
 
-   my $url_sub = '_' . ($uri->path_segments)[3];
+   my $url_sub = '_' . ($uri->path_segments)[$offset+2];
    $url_sub =~ s/\.asp$//;
    $url_sub =~ s/-/_/g;
 
@@ -121,6 +131,12 @@ sub _post {
 
    return $self;
 }
+
+sub set_scheme { $_[0]->{scheme} = $_[1]; }
+sub set_host { $_[0]->{host} = $_[1]; }
+sub set_port { $_[0]->{port} = $_[1]; }
+sub set_path_prefix { $_[0]->{path_prefix} = [ grep { $_ } split(m|/|,$_[1]) ]; }
+sub set_pin_desc { $_[0]->{pin_desc} = $_[1]; }
 
 sub add_account {
    my $self = shift;
@@ -216,7 +232,8 @@ sub _common_checks {
    my $status = shift || $self->{status};
 
    return 0 if $status == STATUS->{ok}
-            or $status == STATUS->{invalid_request};
+            or $status == STATUS->{invalid_request_1}
+            or $status == STATUS->{invalid_request_2};
 
    $self->{response} = {
       is_success => 1,
@@ -295,7 +312,8 @@ sub _logon {
                   POSS_PIN->[$self->{pin_sel}[1]] . ' and ' .
                   POSS_PIN->[$self->{pin_sel}[2]]; 
    }
-   $content .= ' digits from your PIN:</p><p>Please enter the ';
+   $content .= ' digits from your ' . $self->{pin_desc} . ':</p>';
+   $content .= '<p>Please enter the ';
    if ($self->{status} == STATUS->{invalid_request_2}) {
       $content .= 'first, third and thirtieth';
    } else {
