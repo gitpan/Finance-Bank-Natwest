@@ -4,7 +4,7 @@ use vars qw( $VERSION );
 use Carp;
 use LWP::UserAgent;
 
-$VERSION = '0.01';
+$VERSION = '0.03';
 
 use constant URL_ROOT => 'https://www.nwolb.com';
 use constant DIR_BASE => '/secure/';
@@ -193,6 +193,9 @@ sub login{
             pass3 => $pinpass->{password}[2],
             buttonComplete => 'Submitted',
             buttonFinish => 'Finish' } );
+
+    $page = $self->post('LogonMessage.asp', { buttonOK => 'Next' }) if
+        $page =~ m|LogonMessage\.asp|i;
 
     croak "Error during login process, stopped" if
         $page =~ m|<div class=ErrorMsg>.*?</div>|i;

@@ -3,7 +3,7 @@ use strict;
 use lib 't/lib';
 
 use Carp;
-use Test::More tests => 203;
+use Test::More tests => 212;
 use Test::Exception;
 use Mock::NatwestWebServer::Tests;
 use_ok( 'Mock::NatwestWebServer' );
@@ -19,7 +19,7 @@ for my $method (qw/ add_account expire_session session_id
 
 $nws->add_account( dob => '010179', uid => '0001',
                    pin => '1234', pass => 'abcdefgh' );
-$nws->logonmessage_disable();
+$nws->logonmessage_enable();
 
 is( $nws->next_call(), undef, 'nothing but new() called yet' );
 $nws->clear();
@@ -133,7 +133,12 @@ $params2->{pass3} = 'e';
 $url = 'https://www.nwolb.com/secure/' . 
        ($resp->base->path_segments)[2] .
        '/logon-pinpass.asp';
-$resp = request_ok( $ua, LOGIN_OK, $url, $params2 );
+$resp = request_ok( $ua, LOGIN_MSG, $url, $params2 );
+
+$url = 'https://www.nwolb.com/secure/' .
+       ($resp->base->path_segments)[2] .
+       '/logonmessage.asp';
+$resp = request_ok( $ua, LOGIN_OK, $url, { buttonOK => 'Next' } );
 
 $url = 'https://www.nwolb.com/secure/' .
        ($resp->base->path_segments)[2] .

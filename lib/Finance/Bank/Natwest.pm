@@ -6,7 +6,7 @@ use Carp;
 use HTML::TokeParser;
 use Finance::Bank::Natwest::Connection;
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 =head1 NAME
 
@@ -230,7 +230,7 @@ prodding me occasionally to come back to this and do some more on it.
 
 =head1 AUTHOR
 
-Jody Belka C<perl-module-fbn@aardvark-ss.com>
+Jody Belka C<knew@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

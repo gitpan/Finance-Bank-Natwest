@@ -11,6 +11,7 @@ use constant ERROR       =>     'ERROR';
 use constant ERROR_NOREDIR =>   'ERROR_NOREDIR';
 use constant UNKNOWN_PAGE =>    'UNKNOWN_PAGE'; 
 use constant PINPASS_REQUEST => 'PINPASS_REQUEST';
+use constant LOGIN_MSG =>       'LOGIN_MSG';
 use constant LOGIN_OK =>        'LOGIN_OK';
 use constant BALANCES =>        'BALANCES';
 
@@ -29,6 +30,10 @@ use constant CONTENT_REGEX => {
                                    ([a-z]{5,11}) \s and \s ([a-z]{5,11}) \s
                                    characters \s from \s your \s Password:
                                   |x,
+ LOGIN_MSG =>       qr|
+                       <form \s action="LogonMessage \. asp" \s method="post">
+		       Some \s important \s logon \s message </form>
+		      |x,
  LOGIN_OK =>        qr|
                                    Our \s records \s indicate \s the \s last \s
                                    time \s you \s used \s the \s service \s
@@ -44,6 +49,7 @@ use constant CONTENT_MESSAGES => {
    ERROR_NOREDIR   => 'unknown error as expected',
    UNKNOWN_PAGE    => 'unknown page as expected',
    PINPASS_REQUEST => 'pinpass request as expected',
+   LOGIN_MSG       => 'login message presented',
    LOGIN_OK        => 'login successful',
    BALANCES        => 'balances page as expected',
 };
@@ -59,7 +65,7 @@ use vars qw/ @EXPORT /;
 
 @EXPORT = qw/ request_ok request_fail was_called were_called
               SESSION_EXPIRED UNAVAILABLE ERROR UNKNOWN_PAGE PINPASS_REQUEST
-	      LOGIN_OK ERROR_NOREDIR BALANCES
+	      LOGIN_MSG LOGIN_OK ERROR_NOREDIR BALANCES
 	    /;
 
 

@@ -3,7 +3,7 @@ package Finance::Bank::Natwest::CredentialsProvider::Constant;
 use Carp;
 
 use vars qw( $VERSION );
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 =head1 NAME
 
@@ -108,7 +108,7 @@ __END__
 
 =head1 AUTHOR
 
-Jody Belka C<perl-module-fbn@aardvark-ss.com>
+Jody Belka C<knew@cpan.org>
 
 =head1 COPYRIGHT AND LICENSE
 

@@ -19,6 +19,7 @@ use constant PAGES =>
    { 'logon.asp' => 1, 
      'logon-pinpass.asp' => 1,
      'balances.asp' => 1,
+     'logonmessage.asp' => 1,
    };
 
      
@@ -42,7 +43,7 @@ sub new{
    $self->{pass_sel} = undef;
    $self->{pass_lock} = 0;
    $self->{account} = undef;
-
+   $self->{logonmessage} = 0;
 
    $self->mock('post', \&_post);
    $self->mock('is_success', sub { $_[0]->{response}{is_success} } );
@@ -140,6 +141,18 @@ sub expire_session {
    undef $self->{session};
    $self->{progress} = 0;
    $self->clear_pinpass;
+}
+
+sub logonmessage_enable {
+   my $self = shift;
+
+   $self->{logonmessage} = 1;
+}
+
+sub logonmessage_disable {
+   my $self = shift;
+
+   $self->{logonmessage} = 0;
 }
 
 sub session_id { $_[0]->{session} }
@@ -361,9 +374,18 @@ sub _logon_pinpass {
       return $self;
    }
 
-   my $content = '<html><body>' .
-   		 'Our records indicate the last time you used the service was:' .
+   my $content;
+   if ($self->{logonmessage}) {
+      $content = '<html><body>' .
+                 '<form action="LogonMessage.asp" method="post">' .
+                 'Some important logon message' .
+                 '</form></body></html>';
+   } else {
+      $content = '<html><body>' .
+   		 'Our records indicate the last time you used ' . 
+		 'the service was:' .
 		 '</body></html>';
+   }
    
    $self->{response} = {
       is_success => 1,
@@ -371,7 +393,44 @@ sub _logon_pinpass {
       content => $content
    };
 
-   $self->{progress} = 2;
+   if ($self->{logonmessage}) {
+      $self->{progress} = 2;
+   } else {
+      $self->{progress} = 3;
+   }
+}
+
+sub _logonmessage {
+   my $self = shift;
+   my $uri = shift;
+   my $args = shift;
+
+   if ($self->{progress} != 2) {
+      $self->_common_checks($uri, STATUS->{other_error});
+      return $self;
+   }
+
+   my $args_ok = exists $args->{buttonOK};
+
+   $args_ok = 0 if $args_ok and $args->{buttonOK} ne 'Next';
+
+   unless ($args_ok) {
+      $self->_common_checks($uri, STATUS->{other_error});
+      return $self;
+   }
+
+   my $content = '<html><body>' .
+   		 'Our records indicate the last time you used ' .
+		 'the service was:' .
+		 '</body></html>';
+
+   $self->{response} = {
+      is_success => 1,
+      path_segments => [ $uri->path_segments ],
+      content => $content
+   };
+
+   $self->{progress} = 3;
 }
 
 sub _balances {
@@ -379,7 +438,7 @@ sub _balances {
    my $uri = shift;
    my $args = shift;
 
-   if ($self->{progress} != 2) {
+   if ($self->{progress} != 3) {
       $self->_common_checks($uri, STATUS->{other_error});
       return $self;
    }
